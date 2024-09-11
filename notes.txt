@@ -1,0 +1,13 @@
+Fontes externas:
+Clima
+Eventos
+População e Mobilidade
+Dados Socioeconômicos
+
+Ideais:
+Monitoramento de Posições dos Veículos em Tempo Real com Alerta de Atrasos
+Previsão de Chegada de Ônibus em Paradas Usando Dados Históricos
+Dashboard de Desempenho de Corredores e Linhas de Ônibus
+Análise de Frequência e Padrões de Viagens
+Aplicação Web de Consulta de Rotas e Planejamento de Viagem
+Score de linha considerando dados de atraso, disponibilidade, velocidade, clima, transportes alternativos, etc…
