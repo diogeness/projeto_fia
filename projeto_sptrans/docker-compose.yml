@@ -1,0 +1,33 @@
+version: '3'
+services:
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./minio/data:/data
+      - ./minio/config:/root/.minio
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: fia_master
+    command: server /data --console-address ":9001"
+  
+  python:
+    build:
+      context: ./api_loader
+      dockerfile: Dockerfile
+    container_name: api_loader
+    environment:
+      MINIO_HOSTNAME: "minio:9000"
+      MINIO_ACCESS_KEY: "uJ2LAihTN0YWgRmh5Wdd"
+      MINIO_SECRET_KEY: "5XlZJa03fIrs1hkaB5v7QZEEPqAzFSpchMVSyobD"
+      API_URL: "http://api.olhovivo.sptrans.com.br/v2.1"
+      API_TOKEN: "ae2f510b572201ce998ea8e669d6c39066609ee0cad28f678d46ae5ac986306a"
+    volumes:
+      - ./api_loader:/usr/src/app
+    working_dir: /usr/src/app
+    command: sh -c "pip install --upgrade pip && pip install -r requirements.txt && python main.py"
+    depends_on:
+      - minio
