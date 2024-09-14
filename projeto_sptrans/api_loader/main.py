@@ -54,7 +54,7 @@ def save_raw_data(bucket_name, position):
     json_bytes = io.BytesIO(json_position.encode("utf-8"))
     len_json = len(json_position)
 
-    dir_path = datetime.now().strftime("sptrans/year=%Y/month=%m/day=%d/hour=%H/minute=%M/")
+    dir_path = datetime.now(sao_paulo_tz).strftime("sptrans/year=%Y/month=%m/day=%d/hour=%H/minute=%M/")
     filename = datetime.now(sao_paulo_tz).isoformat(timespec='milliseconds')
     object_name = dir_path + "position_" + filename + ".json"
 
