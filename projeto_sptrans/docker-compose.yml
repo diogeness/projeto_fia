@@ -24,7 +24,7 @@ services:
       MINIO_ACCESS_KEY: "uJ2LAihTN0YWgRmh5Wdd"
       MINIO_SECRET_KEY: "5XlZJa03fIrs1hkaB5v7QZEEPqAzFSpchMVSyobD"
       API_URL: "http://api.olhovivo.sptrans.com.br/v2.1"
-      API_TOKEN: "ae2f510b572201ce998ea8e669d6c39066609ee0cad28f678d46ae5ac986306a"
+      API_TOKEN: "" # Token de acesso a API da SPTrans
     volumes:
       - ./api_loader:/usr/src/app
     working_dir: /usr/src/app
