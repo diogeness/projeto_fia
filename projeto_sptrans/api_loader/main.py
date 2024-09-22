@@ -20,21 +20,7 @@ minio_client = Minio(
     secure=False
 )
 
-
-
-def salvar_dict_minio(bucket_name, object_name, dict):
-    """
-    Save a dictionary object to a MinIO bucket.
-
-    Args:
-        bucket_name (str): The name of the MinIO bucket where the object will be stored.
-        object_name (str): The name of the object to be stored in the bucket.
-        dict (dict): The dictionary object to be saved.
-
-    Returns:
-        None
-    """
-    minio_client.put_object(bucket_name, object_name, dict)
+interval_time = int(os.getenv("INTERVAL_SECONDS", 120))
 
 def save_raw_data(bucket_name, position):
     """
@@ -59,7 +45,7 @@ def save_raw_data(bucket_name, position):
     object_name = dir_path + "position_" + filename + ".json"
 
     minio_client.put_object(bucket_name, object_name, json_bytes, len_json)
-    print(f"Saved raw data to {bucket_name}/{object_name}")
+    print(f"API LOADER - arquivo salvo em: {bucket_name}/{object_name}")
 
 class RequestAPI:
     def __init__(self):
@@ -70,7 +56,7 @@ class RequestAPI:
     def authentication(self):
         auth_url = f"{self.url}/Login/Autenticar?token={self.token}"
         response = self.session.post(auth_url)
-        print(f"Auth Message: {response.text}")
+        print(f"API LOADER - Retorno da API: {response.text}")
 
     def position(self):
         position_url = f"{self.url}/Posicao"
@@ -79,12 +65,16 @@ class RequestAPI:
 
 if __name__ == "__main__":
     while True:
+        start_time = time.time() 
         try:
             api = RequestAPI()
             api.authentication()
             position_data = api.position()
             save_raw_data("raw", position_data)
         except Exception as e:
-            print(f"An error occurred: {e}")
-        print("Sleeping for 2 minutes...")    
-        time.sleep(120)  # Wait for 2 minutes before running again
+            print(f"API LOADER - Erro: {e}")
+
+        execution_time = time.time() - start_time
+        print(f"API LOADER - Tempo Execução: {execution_time:.2f} segundos")    
+        print(f"API LOADER - Aguarda {interval_time} segundos...")    
+        time.sleep(30)  # Wait for 2 minutes before running again

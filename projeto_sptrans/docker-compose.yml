@@ -10,24 +10,83 @@ services:
       - ./minio/data:/data
       - ./minio/config:/root/.minio
     environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: fia_master
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server /data --console-address ":9001"
-  
+
   python:
     build:
       context: ./api_loader
       dockerfile: Dockerfile
     container_name: api_loader
+    restart: always
     environment:
-      MINIO_HOSTNAME: "minio:9000"
-      MINIO_ACCESS_KEY: "uJ2LAihTN0YWgRmh5Wdd"
-      MINIO_SECRET_KEY: "5XlZJa03fIrs1hkaB5v7QZEEPqAzFSpchMVSyobD"
-      API_URL: "http://api.olhovivo.sptrans.com.br/v2.1"
-      API_TOKEN: "" # Token de acesso a API da SPTrans
+      MINIO_HOSTNAME: ${MINIO_HOSTNAME}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      API_URL: ${API_URL}
+      API_TOKEN: ${API_TOKEN}
+      INTERVAL_SECONDS: ${INTERVAL_SECONDS}
     volumes:
       - ./api_loader:/usr/src/app
     working_dir: /usr/src/app
-    command: sh -c "pip install --upgrade pip && pip install -r requirements.txt && python main.py"
+    command: sh -c "pip install --upgrade pip && pip install -r requirements.txt && python -u main.py"
     depends_on:
       - minio
+
+  clickhouse:
+    image: clickhouse/clickhouse-server
+    container_name: clickhouse
+    hostname: clickhouse
+    ports:
+      - "18123:8123"
+      - "29000:9000"
+    depends_on:
+      - minio
+    environment:
+      CLICKHOUSE_DB: "sptrans"
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    volumes:
+      - ./clickhouse_data:/var/lib/clickhouse
+      - ./util_clickhouse:/util
+      # - ./clickhouse_scripts:/docker-entrypoint-initdb.d 
+    privileged: true
+
+  metabase:
+    image: metabase/metabase:v0.44.6
+    container_name: metabase
+    hostname: metabase
+    ports:
+      - 3000:3000
+    depends_on:
+      - clickhouse
+    environment:
+      MB_DB_TYPE: h2
+      MB_DB_FILE: /metabase.db
+      MB_PASSWORD_COMPLEXITY: "weak"
+      MB_PASSWORD_LENGTH: 4
+      MB_PLUGINS_DIR: /plugins
+    volumes:
+      - ./metabase-data:/metabase.db
+      - ./metabase-plugins:/plugins
+  
+  data_processor:
+    build:
+      context: ./data_processor 
+    container_name: data_processor
+    restart: always
+    environment:
+      MINIO_URL: ${MINIO_URL}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      INTERVAL_SECONDS_PROCESSOR: ${INTERVAL_SECONDS_PROCESSOR}
+    volumes:
+      - ./data_processor:/usr/src/app
+    working_dir: /usr/src/app
+    depends_on:
+      - minio
+
