@@ -70,6 +70,7 @@ if __name__ == "__main__":
             api = RequestAPI()
             api.authentication()
             position_data = api.position()
+            print(f"API LOADER - Tempo de resposta da API: {time.time() - start_time:.2f} segundos")
             save_raw_data("raw", position_data)
         except Exception as e:
             print(f"API LOADER - Erro: {e}")
@@ -77,4 +78,4 @@ if __name__ == "__main__":
         execution_time = time.time() - start_time
         print(f"API LOADER - Tempo Execução: {execution_time:.2f} segundos")    
         print(f"API LOADER - Aguarda {interval_time} segundos...")    
-        time.sleep(30)  # Wait for 2 minutes before running again
+        time.sleep(interval_time)

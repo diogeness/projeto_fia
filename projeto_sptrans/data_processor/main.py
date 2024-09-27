@@ -2,8 +2,8 @@ import os
 from dotenv import load_dotenv
 import time
 from datetime import datetime, timedelta
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, explode
+from pyspark.sql import SparkSession # type: ignore
+from pyspark.sql.functions import col, explode # type: ignore
 
 load_dotenv()
 
@@ -126,5 +126,5 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"DATA PROCESSOR - Erro: {e}")
 
-        print(f"DATA PROCESSOR - Aguarda {interval_time} segundos...")        
+        print(f"DATA PROCESSOR - Aguarda {interval_time} segundos...")       
         time.sleep(interval_time)

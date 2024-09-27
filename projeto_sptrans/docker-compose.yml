@@ -90,3 +90,18 @@ services:
     depends_on:
       - minio
 
+  data_processor_business:
+    build:
+      context: ./data_processor_business
+    container_name: data_processor_business
+    restart: always
+    environment:
+      MINIO_URL: ${MINIO_URL}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      INTERVAL_SECONDS_PROCESSOR: ${INTERVAL_SECONDS_PROCESSOR_BUSINESS}
+    volumes:
+      - ./data_processor_business:/usr/src/app
+    working_dir: /usr/src/app
+    depends_on:
+      - minio
